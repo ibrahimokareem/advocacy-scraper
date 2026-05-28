@@ -45,3 +45,4 @@ When you push this code to your GitHub repository, you need to configure the Act
 3. Add a new repository secret named `GOOGLE_CREDENTIALS` and paste the *entire* contents of your `credentials.json` file into it.
 
 The daily scraper will then run automatically every day at 08:00 UTC, using the URLs you discovered using the local crawler!
+# advocacy-scraper
