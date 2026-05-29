@@ -74,8 +74,15 @@ with sync_playwright() as p:
             
             # Extract the text
             element = page.locator(selector).first
-            text_value = element.inner_text().strip()
-            print(f"  -> Found value: {text_value}")
+            raw_text = element.inner_text().strip()
+            
+            # Clean up formatting differences (e.g. "1.035", "3 077", "68,428") by keeping only digits
+            cleaned_text = "".join(filter(str.isdigit, raw_text))
+            
+            # Fallback to original text if no digits found (e.g., if the page says "N/A" or is empty)
+            text_value = cleaned_text if cleaned_text else raw_text
+            
+            print(f"  -> Found value: {text_value} (raw: {raw_text})")
             scraped_data.append(text_value)
             
         except Exception as e:
