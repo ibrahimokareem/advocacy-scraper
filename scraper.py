@@ -34,14 +34,24 @@ print(f"Connecting to Google Sheet ID: {sheet_id}")
 spreadsheet = client.open_by_key(sheet_id)
 worksheet = spreadsheet.sheet1
 
-# 3. Read the URLs from Column A (ignoring header)
-print("Reading URLs from Column A...")
-all_col_a = worksheet.col_values(1)
-if len(all_col_a) <= 1:
-    print("No URLs found in Column A (below the header). Exiting.")
+# 3. Read the URLs dynamically by finding the "Partner URLs" column
+print("Looking for the 'Partner URLs' column...")
+first_row = worksheet.row_values(1)
+
+try:
+    # .index() is 0-based, gspread columns are 1-based
+    url_col_index = first_row.index("Partner URLs") + 1
+except ValueError:
+    print("Error: Could not find 'Partner URLs' header in the first row. Exiting.")
+    exit(1)
+
+print(f"Reading URLs from Column {url_col_index}...")
+all_url_col = worksheet.col_values(url_col_index)
+if len(all_url_col) <= 1:
+    print("No URLs found below the header. Exiting.")
     exit(0)
     
-urls = all_col_a[1:] # Skip row 1 (Header)
+urls = all_url_col[1:] # Skip row 1 (Header)
 
 # 4. Scrape Data using Playwright
 today_date = datetime.date.today().strftime("%Y-%m-%d")
