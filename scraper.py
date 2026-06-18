@@ -89,8 +89,11 @@ with sync_playwright() as p:
             # Clean up formatting differences (e.g. "1.035", "3 077", "68,428") by keeping only digits
             cleaned_text = "".join(filter(str.isdigit, raw_text))
             
-            # Fallback to original text if no digits found (e.g., if the page says "N/A" or is empty)
-            text_value = cleaned_text if cleaned_text else raw_text
+            # Convert to integer so Google Sheets recognizes it as a true number
+            if cleaned_text:
+                text_value = int(cleaned_text)
+            else:
+                text_value = raw_text
             
             print(f"  -> Found value: {text_value} (raw: {raw_text})")
             scraped_data.append(text_value)
@@ -107,6 +110,11 @@ print("Writing data back to Google Sheet...")
 # Find the next empty column
 first_row = worksheet.row_values(1)
 next_col_index = len(first_row) + 1
+
+# If we've hit the edge of the spreadsheet, add more columns automatically
+if next_col_index > worksheet.col_count:
+    print(f"Adding a new column to the spreadsheet...")
+    worksheet.add_cols(1)
 
 # Prepare the column data to update in batch
 cell_list = [gspread.Cell(row=1, col=next_col_index, value=today_date)]
