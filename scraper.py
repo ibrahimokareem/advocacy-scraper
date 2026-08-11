@@ -5,6 +5,7 @@ import requests
 import xml.etree.ElementTree as ET
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
+from playwright_stealth import stealth_sync
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -96,6 +97,7 @@ if new_urls_to_check:
         context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
         context.route("**/*", lambda route: route.abort() if route.request.resource_type in ["image", "media", "font"] else route.continue_())
         page = context.new_page()
+        stealth_sync(page)
         
         for url in new_urls_to_check:
             print(f"Checking new URL: {url}")
@@ -146,6 +148,7 @@ with sync_playwright() as p:
     context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     context.route("**/*", lambda route: route.abort() if route.request.resource_type in ["image", "media", "font"] else route.continue_())
     page = context.new_page()
+    stealth_sync(page)
     
     for url in valid_urls:
         if not url.strip():
